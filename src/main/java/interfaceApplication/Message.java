@@ -3,6 +3,8 @@ package interfaceApplication;
 import JGrapeSystem.rMsg;
 import Model.MessageModel;
 import apps.appsProxy;
+import authority.plvDef.UserMode;
+import authority.plvDef.plvType;
 import interfaceModel.GrapeDBSpecField;
 import interfaceModel.GrapeTreeDBModel;
 import nlogger.nlogger;
@@ -21,6 +23,7 @@ public class Message {
     private session se;
     private JSONObject userInfo = null;
     private String currentWeb = null;
+    private Integer userType = null;
 
     public Message() {
         model = new MessageModel();
@@ -30,11 +33,13 @@ public class Message {
         gDbSpecField.importDescription(appsProxy.tableConfig("Message"));
         message.descriptionModel(gDbSpecField);
         message.bindApp();
+        message.enableCheck();//开启权限检查
 
         se = new session();
         userInfo = se.getDatas();
         if (userInfo != null && userInfo.size() != 0) {
             currentWeb = userInfo.getString("currentWeb"); // 当前站点id
+            userType =userInfo.getInt("userType");//当前用户身份
         }
     }
 
@@ -79,6 +84,12 @@ public class Message {
         String messageContent = "", oid = "";
         String result = rMsg.netMSG(100, "新增留言失败");
         JSONObject temp = new JSONObject();
+        JSONObject rMode = new JSONObject(plvType.chkType, plvType.powerVal).puts(plvType.chkVal, 100);//设置默认查询权限
+    	JSONObject uMode = new JSONObject(plvType.chkType, plvType.powerVal).puts(plvType.chkVal, 200);
+    	JSONObject dMode = new JSONObject(plvType.chkType, plvType.powerVal).puts(plvType.chkVal, 300);
+    	object.put("rMode", rMode.toJSONString()); //添加默认查看权限
+    	object.put("uMode", uMode.toJSONString()); //添加默认修改权限
+    	object.put("dMode", dMode.toJSONString()); //添加默认删除权限
         if (object != null && object.size() > 0) {
             switch (type) {
             case 0: // 回复留言，回复次数+1
@@ -104,7 +115,7 @@ public class Message {
                         messageContent = codec.decodebase64(messageContent);
                     }
                     object.escapeHtmlPut("messageContent", messageContent);
-                    oid = (String) message.data(object).insertOnce();
+                    oid = (String) message.data(object).insertEx();
                 }
                 break;
             }
@@ -123,7 +134,7 @@ public class Message {
     public String updateMessage(String mid, String msgInfo) {
         String result = rMsg.netMSG(100, "留言修改失败");
         int code = 99;
-        if (!StringHelper.InvaildString(mid) && !StringHelper.InvaildString(msgInfo)) {
+        if (StringHelper.InvaildString(mid) && StringHelper.InvaildString(msgInfo)) {
             code = update(mid, msgInfo);
             result = code == 0 ? rMsg.netMSG(0, "留言修改成功") : result;
         }
@@ -227,7 +238,10 @@ public class Message {
             }
         }
         if (!StringHelper.InvaildString(currentWeb)) {
-            message.eq("wbid", currentWeb);
+        	//判断当前用户身份：系统管理员，网站管理员
+        	if (UserMode.root>userType && userType>= UserMode.admin) { //判断是否是网站管理员
+        		message.eq("wbid", currentWeb);
+    		}
             array = message.dirty().page(idx, pageSize);
             total = message.count();
         }
@@ -243,10 +257,16 @@ public class Message {
      */
     private int update(String mid, String msgInfo) {
         int code = 99;
+        boolean objects = false;
         if (!StringHelper.InvaildString(mid) && !StringHelper.InvaildString(msgInfo)) {
             JSONObject object = JSONObject.toJSON(msgInfo);
             if (object != null && object.size() > 0) {
-                code = message.eq("_id", mid).data(object).update() != null ? 0 : 99;
+            	objects = message.eq("_id", mid).data(object).updateEx();
+            	if(objects=true){
+            		code = 0;
+            	}else{
+            		code = 99;
+            	}
             }
         }
         return code;
