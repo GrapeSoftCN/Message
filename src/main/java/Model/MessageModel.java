@@ -64,7 +64,7 @@ public class MessageModel {
         }
         if (object.containsKey("content")) {
             content = object.getString("content");
-            if (!StringHelper.InvaildString(content)) {
+            if (StringHelper.InvaildString(content)) {
                 object.put("content", object.escapeHtmlGet("content"));
             }
         }

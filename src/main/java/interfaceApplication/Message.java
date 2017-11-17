@@ -33,7 +33,7 @@ public class Message {
         gDbSpecField.importDescription(appsProxy.tableConfig("Message"));
         message.descriptionModel(gDbSpecField);
         message.bindApp();
-        message.enableCheck();//开启权限检查
+//        message.enableCheck();//开启权限检查
 
         se = new session();
         userInfo = se.getDatas();
@@ -110,7 +110,7 @@ public class Message {
                     if (object.containsKey("messageContent")) {
                         messageContent = object.get("messageContent").toString();
                     }
-                    if (!StringHelper.InvaildString(messageContent)) {
+                    if (StringHelper.InvaildString(messageContent)) {
                         messageContent = codec.DecodeHtmlTag(messageContent);
                         messageContent = codec.decodebase64(messageContent);
                     }
@@ -151,7 +151,7 @@ public class Message {
         String[] values = null;
         long code = 0;
         String result = rMsg.netMSG(100, "删除失败");
-        if (!StringHelper.InvaildString(mids)) {
+        if (StringHelper.InvaildString(mids)) {
             values = mids.split(",");
         }
         if (values != null) {
@@ -178,7 +178,7 @@ public class Message {
         JSONObject object = new JSONObject();
         object.put("isdelete", Long.parseLong(isdelete));
         String result = rMsg.netMSG(100, "留言隐藏或显示失败");
-        if (!StringHelper.InvaildString(mids)) {
+        if (StringHelper.InvaildString(mids)) {
             values = mids.split(",");
         }
         if (values != null) {
@@ -229,7 +229,7 @@ public class Message {
     public String PageByMessage(int idx, int pageSize, String msgInfo) {
         long total = 0;
         JSONArray array = null;
-        if (!StringHelper.InvaildString(msgInfo)) {
+        if (StringHelper.InvaildString(msgInfo)) {
             JSONArray condArray = model.buildCond(msgInfo);
             if (condArray == null || condArray.size() <= 0) {
                 return rMsg.netPAGE(idx, pageSize, total, new JSONArray());
@@ -237,7 +237,7 @@ public class Message {
                 message.where(condArray);
             }
         }
-        if (!StringHelper.InvaildString(currentWeb)) {
+        if (StringHelper.InvaildString(currentWeb)) {
         	//判断当前用户身份：系统管理员，网站管理员
         	if (UserMode.root>userType && userType>= UserMode.admin) { //判断是否是网站管理员
         		message.eq("wbid", currentWeb);
@@ -258,7 +258,7 @@ public class Message {
     private int update(String mid, String msgInfo) {
         int code = 99;
         boolean objects = false;
-        if (!StringHelper.InvaildString(mid) && !StringHelper.InvaildString(msgInfo)) {
+        if (StringHelper.InvaildString(mid) && StringHelper.InvaildString(msgInfo)) {
             JSONObject object = JSONObject.toJSON(msgInfo);
             if (object != null && object.size() > 0) {
             	objects = message.eq("_id", mid).data(object).updateEx();
@@ -297,7 +297,7 @@ public class Message {
      */
     private JSONObject FindMsgByID(String mid) {
         JSONObject object = null;
-        if (!StringHelper.InvaildString(mid)) {
+        if (StringHelper.InvaildString(mid)) {
             object = message.eq("_id", mid).find();
         }
         return object != null ? model.dencode(object) : null;
