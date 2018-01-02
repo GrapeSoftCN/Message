@@ -1,20 +1,20 @@
 package interfaceApplication;
 
-import JGrapeSystem.rMsg;
 import Model.MessageModel;
-import apps.appsProxy;
-import authority.plvDef.UserMode;
-import authority.plvDef.plvType;
-import interfaceModel.GrapeDBSpecField;
-import interfaceModel.GrapeTreeDBModel;
-import nlogger.nlogger;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
-import security.codec;
-import session.session;
-import string.StringHelper;
+import common.java.JGrapeSystem.rMsg;
+import common.java.apps.appsProxy;
+import common.java.authority.plvDef.UserMode;
+import common.java.authority.plvDef.plvType;
+import common.java.interfaceModel.GrapeDBSpecField;
+import common.java.interfaceModel.GrapeTreeDBModel;
+import common.java.nlogger.nlogger;
+import common.java.security.codec;
+import common.java.session.session;
+import common.java.string.StringHelper;
 
 public class Message {
     private GrapeTreeDBModel message;

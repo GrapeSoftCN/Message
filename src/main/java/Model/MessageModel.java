@@ -3,8 +3,9 @@ package Model;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
-import database.dbFilter;
-import string.StringHelper;
+import common.java.database.dbFilter;
+import common.java.string.StringHelper;
+
 
 public class MessageModel {
     /**
